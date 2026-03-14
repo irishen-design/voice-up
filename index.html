@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>French Pronunciation Log</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header>
+        <h1>French Pronunciation Log</h1>
+        <p class="subtitle">
+          Type a word or sentence, hear it, and save it for review.
+        </p>
+      </header>
+
+      <section class="panel">
+        <label for="textInput">French text</label>
+        <textarea
+          id="textInput"
+          rows="4"
+          placeholder="Example: Il bout d’impatience."
+        ></textarea>
+
+        <div class="controls">
+          <button id="playBtn">▶ Play</button>
+          <button id="saveBtn">＋ Save to history</button>
+          <button id="clearInputBtn" class="secondary">Clear input</button>
+        </div>
+
+        <p id="status" class="status">Ready.</p>
+      </section>
+
+      <section class="panel">
+        <div class="history-header">
+          <h2>History</h2>
+          <div class="history-actions">
+            <input
+              id="searchInput"
+              type="text"
+              placeholder="Search history..."
+            />
+            <button id="showFavoritesBtn" class="secondary">
+              Show favorites only
+            </button>
+            <button id="clearHistoryBtn" class="danger">
+              Clear all history
+            </button>
+          </div>
+        </div>
+
+        <ul id="historyList" class="history-list"></ul>
+      </section>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
