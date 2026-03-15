@@ -141,3 +141,20 @@ button:disabled {
   color: #6b7280;
   padding: 12px 0;
 }
+
+.notes-label {
+  display: block;
+  font-weight: 600;
+  margin: 10px 0 6px;
+  color: #374151;
+}
+
+.history-notes {
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font: inherit;
+  margin-bottom: 12px;
+  resize: vertical;
+}

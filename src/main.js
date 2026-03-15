@@ -107,6 +107,7 @@ function addHistoryItem(text) {
     text: trimmed,
     createdAt: Date.now(),
     favorite: false,
+    notes: "",
   };
 
   history.unshift(item);
@@ -147,32 +148,50 @@ function renderHistory() {
     return;
   }
 
-  historyList.innerHTML = filtered
-    .map(
-      (item) => `
-        <li class="history-item">
-          <p class="history-text">${escapeHtml(item.text)}</p>
-          <div class="history-meta">
-            Saved: ${formatDate(item.createdAt)} ${item.favorite ? "★ Favorite" : ""}
-          </div>
-          <div class="history-buttons">
-            <button data-action="play" data-id="${item.id}">Play</button>
-            <button data-action="favorite" data-id="${item.id}" class="secondary">
-              ${item.favorite ? "Unfavorite" : "Favorite"}
-            </button>
-            <button data-action="reuse" data-id="${item.id}" class="secondary">Reuse</button>
-            <button data-action="delete" data-id="${item.id}" class="danger">Delete</button>
-          </div>
-        </li>
-      `
-    )
-    .join("");
+historyList.innerHTML = filtered
+  .map(
+    (item) => `
+      <li class="history-item">
+        <p class="history-text">${escapeHtml(item.text)}</p>
+        <div class="history-meta">
+          Saved: ${formatDate(item.createdAt)} ${item.favorite ? "★ Favorite" : ""}
+        </div>
+
+        <label class="notes-label" for="notes-${item.id}">Notes</label>
+        <textarea
+          id="notes-${item.id}"
+          class="history-notes"
+          data-action="notes"
+          data-id="${item.id}"
+          rows="3"
+          placeholder="Add meaning, conjugation, pronunciation notes..."
+        >${escapeHtml(item.notes || "")}</textarea>
+
+        <div class="history-buttons">
+          <button data-action="play" data-id="${item.id}">Play</button>
+          <button data-action="favorite" data-id="${item.id}" class="secondary">
+            ${item.favorite ? "Unfavorite" : "Favorite"}
+          </button>
+          <button data-action="reuse" data-id="${item.id}" class="secondary">Reuse</button>
+          <button data-action="delete" data-id="${item.id}" class="danger">Delete</button>
+        </div>
+      </li>
+    `
+  )
+  .join("");
 }
 
 function escapeHtml(text) {
   const div = document.createElement("div");
   div.textContent = text;
   return div.innerHTML;
+}
+
+function updateNotes(id, notes) {
+  history = history.map((item) =>
+    item.id === id ? { ...item, notes } : item
+  );
+  saveHistory();
 }
 
 playBtn.addEventListener("click", () => {
@@ -234,6 +253,15 @@ historyList.addEventListener("click", (event) => {
   if (action === "delete") {
     deleteHistoryItem(id);
     setStatus("Deleted item.");
+  }
+});
+
+historyList.addEventListener("input", (event) => {
+  const target = event.target;
+
+  if (target.dataset.action === "notes") {
+    updateNotes(target.dataset.id, target.value);
+    setStatus("Notes saved.");
   }
 });
 
