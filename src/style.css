@@ -80,6 +80,12 @@ button {
   color: white;
 }
 
+.history-buttons button {
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 0.92rem;
+}
+
 button.secondary {
   background: #e5e7eb;
   color: #111827;
@@ -115,26 +121,36 @@ button:disabled {
 
 .history-item {
   border: 1px solid #e5e7eb;
-  border-radius: 14px;
-  padding: 14px;
+  border-radius: 18px;
+  padding: 16px;
+  background: #ffffff;
 }
 
 .history-text {
-  font-size: 1rem;
-  margin: 0 0 8px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.4;
+  margin: 0 0 10px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(245, 158, 11, 0.18);
+  background: rgba(251, 191, 36, 0.12);
+  color: #1f2937;
   white-space: pre-wrap;
 }
 
 .history-meta {
   color: #6b7280;
-  font-size: 0.9rem;
-  margin-bottom: 10px;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  margin-bottom: 12px;
 }
 
 .history-buttons {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+  margin-top: 4px;
 }
 
 .empty {
@@ -144,17 +160,24 @@ button:disabled {
 
 .notes-label {
   display: block;
-  font-weight: 600;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
   margin: 10px 0 6px;
-  color: #374151;
+  color: #6b7280;
 }
 
 .history-notes {
   width: 100%;
   border: 1px solid #d1d5db;
-  border-radius: 12px;
+  border-radius: 14px;
   padding: 10px 12px;
   font: inherit;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  background: #fcfcfd;
+  color: #374151;
   margin-bottom: 12px;
   resize: vertical;
 }
