@@ -427,7 +427,7 @@
 
       // ── init ──
       const firebaseConfigured =
-        FIREBASE_CONFIG.apiKey !== "PASTE_YOUR_apiKey_HERE";
+        firebaseConfig.apiKey !== "PASTE_YOUR_apiKey_HERE";
       let app,
         auth,
         db,
@@ -435,7 +435,7 @@
         unsubscribeSnapshot = null;
 
       if (firebaseConfigured) {
-        app = initializeApp(FIREBASE_CONFIG);
+        app = initializeApp(firebaseConfig);
         auth = getAuth(app);
         db = getFirestore(app);
       }
