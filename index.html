@@ -8,31 +8,366 @@
       rel="icon"
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E🥐%3C/text%3E%3C/svg%3E"
     />
-    <link rel="stylesheet" href="/style.css" />
+    <style>
+      :root {
+        font-family:
+          Inter,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        color: #1f2937;
+        background: #f6f7fb;
+        line-height: 1.5;
+        font-weight: 400;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 24px;
+      }
+      .app {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+      header {
+        margin-bottom: 24px;
+      }
+      h1,
+      h2 {
+        margin: 0 0 8px;
+      }
+      .subtitle {
+        margin: 0;
+        color: #6b7280;
+      }
+
+      /* ── auth bar ── */
+      .auth-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: white;
+        border-radius: 16px;
+        padding: 12px 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .auth-user {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.9rem;
+        color: #374151;
+      }
+      .auth-user img {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+      .auth-status {
+        font-size: 0.85rem;
+        color: #6b7280;
+      }
+      .sync-badge {
+        font-size: 0.75rem;
+        padding: 2px 8px;
+        border-radius: 20px;
+        background: #d1fae5;
+        color: #065f46;
+        font-weight: 500;
+      }
+      .sync-badge.off {
+        background: #f3f4f6;
+        color: #9ca3af;
+      }
+
+      .panel {
+        background: white;
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+      }
+      label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+      }
+      textarea,
+      input[type="text"] {
+        width: 100%;
+        border: 1px solid #d1d5db;
+        border-radius: 12px;
+        padding: 12px;
+        font: inherit;
+      }
+      textarea {
+        resize: vertical;
+      }
+
+      /* IPA strip */
+      .ipa-strip {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 10px;
+        padding: 8px 12px;
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        border-radius: 10px;
+        min-height: 36px;
+        transition: opacity 0.2s;
+      }
+      .ipa-strip.hidden {
+        display: none;
+      }
+      .ipa-label {
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #93c5fd;
+        flex-shrink: 0;
+      }
+      .ipa-value {
+        font-size: 15px;
+        color: #1d4ed8;
+        flex: 1;
+      }
+      .ipa-hint {
+        font-size: 12px;
+        color: #93c5fd;
+        font-style: italic;
+      }
+
+      .controls,
+      .history-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 12px;
+      }
+      button {
+        border: none;
+        border-radius: 12px;
+        padding: 10px 14px;
+        font: inherit;
+        cursor: pointer;
+        background: #111827;
+        color: white;
+      }
+      .history-buttons button {
+        padding: 8px 12px;
+        border-radius: 10px;
+        font-size: 0.92rem;
+      }
+      button.secondary {
+        background: #e5e7eb;
+        color: #111827;
+      }
+      button.danger {
+        background: #b91c1c;
+      }
+      button.slow {
+        background: #d1fae5;
+        color: #065f46;
+        font-size: 1rem;
+      }
+      button.slow .turtle {
+        font-size: 1.4em;
+        vertical-align: middle;
+        line-height: 1;
+      }
+      button.google {
+        background: white;
+        color: #374151;
+        border: 1px solid #d1d5db;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+      }
+      button.google svg {
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+      }
+      button.signout {
+        background: #f3f4f6;
+        color: #6b7280;
+        font-size: 0.85rem;
+        padding: 6px 12px;
+      }
+      button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .status {
+        margin-top: 12px;
+        color: #4b5563;
+      }
+
+      .history-header {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .history-list {
+        list-style: none;
+        padding: 0;
+        margin: 16px 0 0;
+        display: grid;
+        gap: 12px;
+      }
+      .history-item {
+        border: 1px solid #e5e7eb;
+        border-radius: 18px;
+        padding: 16px;
+        background: #ffffff;
+      }
+      .history-text {
+        font-size: 1.05rem;
+        font-weight: 600;
+        line-height: 1.4;
+        margin: 0 0 10px;
+        padding: 12px 14px;
+        border-radius: 14px;
+        border: 1px solid rgba(245, 158, 11, 0.18);
+        background: rgba(251, 191, 36, 0.12);
+        color: #1f2937;
+        white-space: pre-wrap;
+      }
+      .history-ipa {
+        font-size: 0.9rem;
+        color: #1d4ed8;
+        margin: -4px 0 10px;
+        padding: 6px 12px;
+        background: #eff6ff;
+        border-radius: 8px;
+        display: inline-block;
+      }
+      .history-meta {
+        color: #6b7280;
+        font-size: 0.82rem;
+        line-height: 1.4;
+        margin-bottom: 12px;
+      }
+      .history-buttons {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 4px;
+      }
+      .empty {
+        color: #6b7280;
+        padding: 12px 0;
+      }
+      .notes-label {
+        display: block;
+        font-size: 0.78rem;
+        font-weight: 500;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        margin: 10px 0 6px;
+        color: #6b7280;
+      }
+      .history-notes {
+        width: 100%;
+        border: 1px solid #d1d5db;
+        border-radius: 14px;
+        padding: 10px 12px;
+        font: inherit;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        background: #fcfcfd;
+        color: #374151;
+        margin-bottom: 12px;
+        resize: vertical;
+      }
+
+      /* ── PASTE YOUR FIREBASE CONFIG HERE ── */
+      /* Instructions below in the script */
+    </style>
   </head>
   <body>
     <div class="app">
       <header>
-        <h1>French Pronunciation Log</h1>
+        <h1>French Pronunciation Log 🥐</h1>
         <p class="subtitle">
           Type a word or sentence, hear it, and save it for review.
         </p>
       </header>
+
+      <!-- Auth bar -->
+      <div class="auth-bar">
+        <div id="authUser" class="auth-user">
+          <span class="auth-status"
+            >Not signed in — history saved locally only</span
+          >
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px">
+          <span id="syncBadge" class="sync-badge off">⚡ Local only</span>
+          <button class="google" id="signInBtn" onclick="signInWithGoogle()">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                fill="#4285F4"
+              />
+              <path
+                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                fill="#34A853"
+              />
+              <path
+                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"
+                fill="#FBBC05"
+              />
+              <path
+                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                fill="#EA4335"
+              />
+            </svg>
+            Sign in with Google
+          </button>
+          <button
+            class="signout"
+            id="signOutBtn"
+            onclick="signOut()"
+            style="display: none"
+          >
+            Sign out
+          </button>
+        </div>
+      </div>
 
       <section class="panel">
         <label for="textInput">French text</label>
         <textarea
           id="textInput"
           rows="4"
-          placeholder="Example: Il bout d’impatience."
+          placeholder="Example: Il bout d'impatience."
         ></textarea>
+
+        <div class="ipa-strip hidden" id="ipaStrip">
+          <span class="ipa-label">IPA</span>
+          <span class="ipa-value" id="ipaValue"></span>
+        </div>
 
         <div class="controls">
           <button id="playBtn">▶ Play</button>
+          <button id="slowBtn" class="slow">
+            <span class="turtle">🐢</span>
+          </button>
           <button id="saveBtn">＋ Save to history</button>
           <button id="clearInputBtn" class="secondary">Clear input</button>
         </div>
-
         <p id="status" class="status">Ready.</p>
       </section>
 
@@ -53,11 +388,485 @@
             </button>
           </div>
         </div>
-
         <ul id="historyList" class="history-list"></ul>
       </section>
     </div>
 
-    <script type="module" src="/src/main.js"></script>
+    <!-- Firebase SDKs -->
+    <script type="module">
+      // ─────────────────────────────────────────────────────────────────
+      // STEP 1: Paste your Firebase config object here (replace the
+      //         placeholder values below with your real ones).
+      //         Get it from: Firebase Console → Project Settings → Your apps
+      // ─────────────────────────────────────────────────────────────────
+      const firebaseConfig = {
+        apiKey: "AIzaSyBsOSt2y-7n2bP8hpxb-S94IaiDPdjtJss",
+        authDomain: "voice-up-f9d02.firebaseapp.com",
+        projectId: "voice-up-f9d02",
+        storageBucket: "voice-up-f9d02.firebasestorage.app",
+        messagingSenderId: "354686205134",
+        appId: "1:354686205134:web:4aa22f462163ceb69b649f",
+        measurementId: "G-W3G11F15QR",
+      };
+      // ─────────────────────────────────────────────────────────────────
+
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+      import {
+        getAuth,
+        GoogleAuthProvider,
+        signInWithPopup,
+        signOut as fbSignOut,
+        onAuthStateChanged,
+      } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+      import {
+        getFirestore,
+        collection,
+        doc,
+        setDoc,
+        deleteDoc,
+        onSnapshot,
+        query,
+        orderBy,
+        writeBatch,
+      } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+
+      // ── init ──
+      const firebaseConfigured =
+        FIREBASE_CONFIG.apiKey !== "PASTE_YOUR_apiKey_HERE";
+      let app,
+        auth,
+        db,
+        currentUser = null,
+        unsubscribeSnapshot = null;
+
+      if (firebaseConfigured) {
+        app = initializeApp(FIREBASE_CONFIG);
+        auth = getAuth(app);
+        db = getFirestore(app);
+      }
+
+      // ── expose auth functions to window (for onclick handlers) ──
+      window.signInWithGoogle = async () => {
+        if (!firebaseConfigured) {
+          alert(
+            "Please add your Firebase config first — see the comment in index.html",
+          );
+          return;
+        }
+        try {
+          const provider = new GoogleAuthProvider();
+          await signInWithPopup(auth, provider);
+        } catch (e) {
+          console.error(e);
+          setStatus("Sign-in failed.");
+        }
+      };
+
+      window.signOut = async () => {
+        if (auth) {
+          await fbSignOut(auth);
+        }
+      };
+
+      // ── app state ──
+      const STORAGE_KEY = "pronunciation-log-v1";
+      let history = loadLocal();
+      let voices = [];
+      let favoritesOnly = false;
+      let ipaCache = {};
+      let ipaTimer;
+
+      // ── DOM refs ──
+      const textInput = document.getElementById("textInput");
+      const playBtn = document.getElementById("playBtn");
+      const slowBtn = document.getElementById("slowBtn");
+      const saveBtn = document.getElementById("saveBtn");
+      const clearInputBtn = document.getElementById("clearInputBtn");
+      const clearHistoryBtn = document.getElementById("clearHistoryBtn");
+      const searchInput = document.getElementById("searchInput");
+      const showFavoritesBtn = document.getElementById("showFavoritesBtn");
+      const historyList = document.getElementById("historyList");
+      const statusEl = document.getElementById("status");
+      const ipaStrip = document.getElementById("ipaStrip");
+      const ipaValue = document.getElementById("ipaValue");
+      const authUserEl = document.getElementById("authUser");
+      const syncBadge = document.getElementById("syncBadge");
+      const signInBtn = document.getElementById("signInBtn");
+      const signOutBtn = document.getElementById("signOutBtn");
+
+      // ── local storage ──
+      function loadLocal() {
+        try {
+          const r = localStorage.getItem(STORAGE_KEY);
+          return r ? JSON.parse(r) : [];
+        } catch (e) {
+          return [];
+        }
+      }
+      function saveLocal() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+      }
+
+      // ── firestore helpers ──
+      function userCol() {
+        return collection(db, "users", currentUser.uid, "entries");
+      }
+
+      async function persistEntry(item) {
+        if (currentUser && db) {
+          try {
+            await setDoc(doc(userCol(), item.id), item);
+          } catch (e) {
+            console.error(e);
+          }
+        } else {
+          saveLocal();
+        }
+      }
+
+      async function removeEntry(id) {
+        if (currentUser && db) {
+          try {
+            await deleteDoc(doc(userCol(), id));
+          } catch (e) {
+            console.error(e);
+          }
+        } else {
+          saveLocal();
+        }
+      }
+
+      async function clearAllEntries() {
+        if (currentUser && db) {
+          try {
+            const batch = writeBatch(db);
+            history.forEach((item) => batch.delete(doc(userCol(), item.id)));
+            await batch.commit();
+          } catch (e) {
+            console.error(e);
+          }
+        } else {
+          saveLocal();
+        }
+      }
+
+      // ── auth state ──
+      if (firebaseConfigured) {
+        onAuthStateChanged(auth, async (user) => {
+          currentUser = user;
+          if (user) {
+            // update UI
+            authUserEl.innerHTML = `
+          ${user.photoURL ? `<img src="${user.photoURL}" alt="">` : ""}
+          <span>${user.displayName || user.email}</span>
+        `;
+            syncBadge.textContent = "☁ Synced";
+            syncBadge.classList.remove("off");
+            signInBtn.style.display = "none";
+            signOutBtn.style.display = "";
+
+            // migrate local entries to Firestore once
+            const local = loadLocal();
+            if (local.length) {
+              for (const item of local) {
+                await setDoc(doc(userCol(), item.id), item);
+              }
+              localStorage.removeItem(STORAGE_KEY);
+            }
+
+            // subscribe to real-time updates
+            if (unsubscribeSnapshot) unsubscribeSnapshot();
+            const q = query(userCol(), orderBy("createdAt", "desc"));
+            unsubscribeSnapshot = onSnapshot(q, (snap) => {
+              history = snap.docs.map((d) => d.data());
+              renderHistory();
+            });
+          } else {
+            currentUser = null;
+            authUserEl.innerHTML = `<span class="auth-status">Not signed in — history saved locally only</span>`;
+            syncBadge.textContent = "⚡ Local only";
+            syncBadge.classList.add("off");
+            signInBtn.style.display = "";
+            signOutBtn.style.display = "none";
+            if (unsubscribeSnapshot) {
+              unsubscribeSnapshot();
+              unsubscribeSnapshot = null;
+            }
+            history = loadLocal();
+            renderHistory();
+          }
+        });
+      }
+
+      // ── IPA lookup (Wiktionary Action API) ──
+      async function fetchIPA(text) {
+        const word = text
+          .trim()
+          .split(/\s+/)[0]
+          .toLowerCase()
+          .replace(/[^a-zàâçéèêëîïôùûüÿæœ'-]/gi, "");
+        if (!word) return null;
+        if (ipaCache[word]) return ipaCache[word];
+        try {
+          const url = `https://en.wiktionary.org/w/api.php?action=parse&page=${encodeURIComponent(word)}&prop=wikitext&format=json&origin=*`;
+          const res = await fetch(url);
+          const data = await res.json();
+          const wikitext = data?.parse?.wikitext?.["*"] || "";
+          const ipaMatch =
+            wikitext.match(/\{\{IPA\|fr\|([^}]+)\}\}/i) ||
+            wikitext.match(/\{\{fr-IPA\|([^}|]*)/i);
+          if (ipaMatch) {
+            const raw = ipaMatch[1];
+            const cleaned =
+              raw.match(/\/[^/]+\//)?.[0] ||
+              raw
+                .replace(/\|.*$/, "")
+                .replace(/[{}[\]]/g, "")
+                .trim();
+            if (cleaned) {
+              ipaCache[word] = cleaned;
+              return cleaned;
+            }
+          }
+          const frSection =
+            wikitext.match(/==French==([\s\S]*?)(?:==\w|$)/i)?.[1] || "";
+          const anyIPA = frSection.match(
+            /\/[a-zàâçéèêëîïôùûüÿæœɑɔɛɥɲŋʁʃʒ̃ˈˌ.ː]+\//i,
+          )?.[0];
+          if (anyIPA) {
+            ipaCache[word] = anyIPA;
+            return anyIPA;
+          }
+        } catch (e) {
+          /* silent */
+        }
+        return null;
+      }
+
+      // IPA auto-lookup on type
+      textInput.addEventListener("input", () => {
+        clearTimeout(ipaTimer);
+        const val = textInput.value.trim();
+        if (!val) {
+          ipaStrip.classList.add("hidden");
+          return;
+        }
+        ipaValue.innerHTML = '<span class="ipa-hint">looking up…</span>';
+        ipaStrip.classList.remove("hidden");
+        ipaTimer = setTimeout(async () => {
+          const ipa = await fetchIPA(val);
+          ipaValue.textContent = ipa || "";
+          if (!ipa) ipaStrip.classList.add("hidden");
+        }, 600);
+      });
+
+      // ── speech ──
+      function loadVoices() {
+        voices = window.speechSynthesis.getVoices();
+      }
+      function getFrenchVoice() {
+        return (
+          voices.find((v) => v.lang.toLowerCase().startsWith("fr")) || null
+        );
+      }
+
+      function speakText(text, rate = 0.95) {
+        if (!("speechSynthesis" in window)) {
+          setStatus("Speech synthesis not supported.");
+          return;
+        }
+        const trimmed = text.trim();
+        if (!trimmed) {
+          setStatus("Please type something first.");
+          return;
+        }
+        window.speechSynthesis.cancel();
+        const utt = new SpeechSynthesisUtterance(trimmed);
+        const frVoice = getFrenchVoice();
+        if (frVoice) {
+          utt.voice = frVoice;
+          utt.lang = frVoice.lang;
+        } else {
+          utt.lang = "fr-FR";
+        }
+        utt.rate = rate;
+        utt.pitch = 1;
+        utt.onstart = () =>
+          setStatus(
+            rate < 0.8
+              ? "🐢 Playing slowly…"
+              : `Playing${frVoice ? ` (${frVoice.name})` : ""}...`,
+          );
+        utt.onend = () => setStatus("Done.");
+        utt.onerror = () => setStatus("Could not play pronunciation.");
+        window.speechSynthesis.speak(utt);
+      }
+
+      // ── history ops ──
+      async function addHistoryItem(text) {
+        const trimmed = text.trim();
+        if (!trimmed) {
+          setStatus("Nothing to save.");
+          return;
+        }
+        const ipaText = ipaValue.textContent;
+        const ipa =
+          ipaText && !ipaText.includes("…") ? ipaText : await fetchIPA(trimmed);
+        const item = {
+          id: crypto.randomUUID(),
+          text: trimmed,
+          ipa: ipa || "",
+          createdAt: Date.now(),
+          favorite: false,
+          notes: "",
+        };
+        history.unshift(item);
+        await persistEntry(item);
+        if (!currentUser) renderHistory();
+        setStatus("Saved to history.");
+      }
+
+      async function toggleFavorite(id) {
+        const item = history.find((i) => i.id === id);
+        if (!item) return;
+        item.favorite = !item.favorite;
+        await persistEntry(item);
+        if (!currentUser) renderHistory();
+      }
+
+      async function updateNotes(id, notes) {
+        const item = history.find((i) => i.id === id);
+        if (!item) return;
+        item.notes = notes;
+        await persistEntry(item);
+        if (!currentUser) setStatus("Notes saved.");
+      }
+
+      async function deleteHistoryItem(id) {
+        history = history.filter((i) => i.id !== id);
+        await removeEntry(id);
+        if (!currentUser) renderHistory();
+        setStatus("Deleted.");
+      }
+
+      // ── render ──
+      function escapeHtml(text) {
+        const d = document.createElement("div");
+        d.textContent = text;
+        return d.innerHTML;
+      }
+
+      function formatDate(ts) {
+        return new Date(ts).toLocaleString();
+      }
+
+      function getFiltered() {
+        const q = searchInput.value.trim().toLowerCase();
+        return history.filter((item) => {
+          const matchSearch = item.text.toLowerCase().includes(q);
+          const matchFav = favoritesOnly ? item.favorite : true;
+          return matchSearch && matchFav;
+        });
+      }
+
+      function renderHistory() {
+        const filtered = getFiltered();
+        if (!filtered.length) {
+          historyList.innerHTML = `<li class="empty">No saved items yet.</li>`;
+          return;
+        }
+        historyList.innerHTML = filtered
+          .map(
+            (item) => `
+      <li class="history-item">
+        <p class="history-text">${escapeHtml(item.text)}</p>
+        ${item.ipa ? `<div class="history-ipa">${escapeHtml(item.ipa)}</div>` : ""}
+        <div class="history-meta">
+          Saved: ${formatDate(item.createdAt)} ${item.favorite ? "★ Favorite" : ""}
+        </div>
+        <label class="notes-label" for="notes-${item.id}">Notes</label>
+        <textarea
+          id="notes-${item.id}"
+          class="history-notes"
+          data-action="notes"
+          data-id="${item.id}"
+          rows="3"
+          placeholder="Add meaning, conjugation, pronunciation notes..."
+        >${escapeHtml(item.notes || "")}</textarea>
+        <div class="history-buttons">
+          <button data-action="play"     data-id="${item.id}">▶ Play</button>
+          <button data-action="slow"     data-id="${item.id}" class="slow"><span class="turtle">🐢</span></button>
+          <button data-action="favorite" data-id="${item.id}" class="secondary">${item.favorite ? "Unfavorite" : "Favorite"}</button>
+          <button data-action="reuse"    data-id="${item.id}" class="secondary">Reuse</button>
+          <button data-action="delete"   data-id="${item.id}" class="danger">Delete</button>
+        </div>
+      </li>
+    `,
+          )
+          .join("");
+      }
+
+      function setStatus(msg) {
+        statusEl.textContent = msg;
+      }
+
+      // ── event listeners ──
+      playBtn.addEventListener("click", () => speakText(textInput.value));
+      slowBtn.addEventListener("click", () => speakText(textInput.value, 0.55));
+      saveBtn.addEventListener("click", () => addHistoryItem(textInput.value));
+
+      clearInputBtn.addEventListener("click", () => {
+        textInput.value = "";
+        ipaStrip.classList.add("hidden");
+        setStatus("Input cleared.");
+      });
+
+      clearHistoryBtn.addEventListener("click", async () => {
+        if (!confirm("Delete all saved history?")) return;
+        history = [];
+        await clearAllEntries();
+        renderHistory();
+        setStatus("History cleared.");
+      });
+
+      searchInput.addEventListener("input", renderHistory);
+
+      showFavoritesBtn.addEventListener("click", () => {
+        favoritesOnly = !favoritesOnly;
+        showFavoritesBtn.textContent = favoritesOnly
+          ? "Show all"
+          : "Show favorites only";
+        renderHistory();
+      });
+
+      historyList.addEventListener("click", (e) => {
+        const btn = e.target.closest("button");
+        if (!btn) return;
+        const { action, id } = btn.dataset;
+        const item = history.find((i) => i.id === id);
+        if (!item) return;
+        if (action === "play") speakText(item.text);
+        if (action === "slow") speakText(item.text, 0.55);
+        if (action === "favorite") toggleFavorite(id);
+        if (action === "reuse") {
+          textInput.value = item.text;
+          textInput.dispatchEvent(new Event("input"));
+          setStatus("Loaded into input.");
+        }
+        if (action === "delete") deleteHistoryItem(id);
+      });
+
+      historyList.addEventListener("input", (e) => {
+        const t = e.target;
+        if (t.dataset.action === "notes") updateNotes(t.dataset.id, t.value);
+      });
+
+      // ── init ──
+      loadVoices();
+      if ("speechSynthesis" in window)
+        window.speechSynthesis.onvoiceschanged = loadVoices;
+      if (!firebaseConfigured) renderHistory();
+      setStatus("Ready.");
+    </script>
   </body>
 </html>
