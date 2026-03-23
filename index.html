@@ -440,6 +440,24 @@
         db = getFirestore(app);
       }
 
+      // ── DOM refs ──
+      const textInput = document.getElementById("textInput");
+      const playBtn = document.getElementById("playBtn");
+      const slowBtn = document.getElementById("slowBtn");
+      const saveBtn = document.getElementById("saveBtn");
+      const clearInputBtn = document.getElementById("clearInputBtn");
+      const clearHistoryBtn = document.getElementById("clearHistoryBtn");
+      const searchInput = document.getElementById("searchInput");
+      const showFavoritesBtn = document.getElementById("showFavoritesBtn");
+      const historyList = document.getElementById("historyList");
+      const statusEl = document.getElementById("status");
+      const ipaStrip = document.getElementById("ipaStrip");
+      const ipaValue = document.getElementById("ipaValue");
+      const authUserEl = document.getElementById("authUser");
+      const syncBadge = document.getElementById("syncBadge");
+      const signInBtn = document.getElementById("signInBtn");
+      const signOutBtn = document.getElementById("signOutBtn");
+
       // ── auth button listeners ──
       signInBtn.addEventListener("click", async () => {
         if (!firebaseConfigured) {
@@ -468,24 +486,6 @@
       let favoritesOnly = false;
       let ipaCache = {};
       let ipaTimer;
-
-      // ── DOM refs ──
-      const textInput = document.getElementById("textInput");
-      const playBtn = document.getElementById("playBtn");
-      const slowBtn = document.getElementById("slowBtn");
-      const saveBtn = document.getElementById("saveBtn");
-      const clearInputBtn = document.getElementById("clearInputBtn");
-      const clearHistoryBtn = document.getElementById("clearHistoryBtn");
-      const searchInput = document.getElementById("searchInput");
-      const showFavoritesBtn = document.getElementById("showFavoritesBtn");
-      const historyList = document.getElementById("historyList");
-      const statusEl = document.getElementById("status");
-      const ipaStrip = document.getElementById("ipaStrip");
-      const ipaValue = document.getElementById("ipaValue");
-      const authUserEl = document.getElementById("authUser");
-      const syncBadge = document.getElementById("syncBadge");
-      const signInBtn = document.getElementById("signInBtn");
-      const signOutBtn = document.getElementById("signOutBtn");
 
       // ── local storage ──
       function loadLocal() {
