@@ -315,7 +315,7 @@
         </div>
         <div style="display: flex; align-items: center; gap: 10px">
           <span id="syncBadge" class="sync-badge off">⚡ Local only</span>
-          <button class="google" id="signInBtn" onclick="signInWithGoogle()">
+          <button class="google" id="signInBtn">
             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path
                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -336,12 +336,7 @@
             </svg>
             Sign in with Google
           </button>
-          <button
-            class="signout"
-            id="signOutBtn"
-            onclick="signOut()"
-            style="display: none"
-          >
+          <button class="signout" id="signOutBtn" style="display: none">
             Sign out
           </button>
         </div>
@@ -445,8 +440,8 @@
         db = getFirestore(app);
       }
 
-      // ── expose auth functions to window (for onclick handlers) ──
-      window.signInWithGoogle = async () => {
+      // ── auth button listeners ──
+      signInBtn.addEventListener("click", async () => {
         if (!firebaseConfigured) {
           alert(
             "Please add your Firebase config first — see the comment in index.html",
@@ -460,13 +455,11 @@
           console.error(e);
           setStatus("Sign-in failed.");
         }
-      };
+      });
 
-      window.signOut = async () => {
-        if (auth) {
-          await fbSignOut(auth);
-        }
-      };
+      signOutBtn.addEventListener("click", async () => {
+        if (auth) await fbSignOut(auth);
+      });
 
       // ── app state ──
       const STORAGE_KEY = "pronunciation-log-v1";
