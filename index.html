@@ -486,7 +486,7 @@
       let favoritesOnly = false;
       let ipaCache = {};
       let ipaTimer;
-
+      let notesSaveTimers = {};
       // ── local storage ──
       function loadLocal() {
         try {
@@ -727,12 +727,25 @@
         if (!currentUser) renderHistory();
       }
 
-      async function updateNotes(id, notes) {
+      function updateNotes(id, notes) {
         const item = history.find((i) => i.id === id);
         if (!item) return;
+
         item.notes = notes;
-        await persistEntry(item);
-        if (!currentUser) setStatus("Notes saved.");
+
+        if (!currentUser) {
+          saveLocal();
+          setStatus("Notes saved.");
+          return;
+        }
+
+        clearTimeout(notesSaveTimers[id]);
+
+        notesSaveTimers[id] = setTimeout(async () => {
+          await persistEntry(item);
+          setStatus("Notes saved.");
+          delete notesSaveTimers[id];
+        }, 500);
       }
 
       async function deleteHistoryItem(id) {
