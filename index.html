@@ -113,40 +113,6 @@
       }
 
       /* IPA strip */
-      .ipa-strip {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-top: 10px;
-        padding: 8px 12px;
-        background: #eff6ff;
-        border: 1px solid #bfdbfe;
-        border-radius: 10px;
-        min-height: 36px;
-        transition: opacity 0.2s;
-      }
-      .ipa-strip.hidden {
-        display: none;
-      }
-      .ipa-label {
-        font-size: 10px;
-        font-weight: 600;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: #93c5fd;
-        flex-shrink: 0;
-      }
-      .ipa-value {
-        font-size: 15px;
-        color: #1d4ed8;
-        flex: 1;
-      }
-      .ipa-hint {
-        font-size: 12px;
-        color: #93c5fd;
-        font-style: italic;
-      }
-
       .controls,
       .history-actions {
         display: flex;
@@ -350,11 +316,6 @@
           placeholder="Example: Il bout d'impatience."
         ></textarea>
 
-        <div class="ipa-strip hidden" id="ipaStrip">
-          <span class="ipa-label">IPA</span>
-          <span class="ipa-value" id="ipaValue"></span>
-        </div>
-
         <div class="controls">
           <button id="playBtn">▶ Play</button>
           <button id="slowBtn" class="slow">
@@ -378,6 +339,7 @@
             <button id="showFavoritesBtn" class="secondary">
               Show favorites only
             </button>
+            <button id="showVerbsBtn" class="secondary">Show verbs only</button>
             <button id="clearHistoryBtn" class="danger">
               Clear all history
             </button>
@@ -449,10 +411,9 @@
       const clearHistoryBtn = document.getElementById("clearHistoryBtn");
       const searchInput = document.getElementById("searchInput");
       const showFavoritesBtn = document.getElementById("showFavoritesBtn");
+      const showVerbsBtn = document.getElementById("showVerbsBtn");
       const historyList = document.getElementById("historyList");
       const statusEl = document.getElementById("status");
-      const ipaStrip = document.getElementById("ipaStrip");
-      const ipaValue = document.getElementById("ipaValue");
       const authUserEl = document.getElementById("authUser");
       const syncBadge = document.getElementById("syncBadge");
       const signInBtn = document.getElementById("signInBtn");
@@ -484,6 +445,7 @@
       let history = loadLocal();
       let voices = [];
       let favoritesOnly = false;
+      let verbsOnly = false;
       let ipaCache = {};
       let ipaTimer;
       let notesSaveTimers = {};
@@ -591,66 +553,9 @@
         });
       }
 
-      // ── IPA lookup (Wiktionary Action API) ──
-      async function fetchIPA(text) {
-        const word = text
-          .trim()
-          .split(/\s+/)[0]
-          .toLowerCase()
-          .replace(/[^a-zàâçéèêëîïôùûüÿæœ'-]/gi, "");
-        if (!word) return null;
-        if (ipaCache[word]) return ipaCache[word];
-        try {
-          const url = `https://en.wiktionary.org/w/api.php?action=parse&page=${encodeURIComponent(word)}&prop=wikitext&format=json&origin=*`;
-          const res = await fetch(url);
-          const data = await res.json();
-          const wikitext = data?.parse?.wikitext?.["*"] || "";
-          const ipaMatch =
-            wikitext.match(/\{\{IPA\|fr\|([^}]+)\}\}/i) ||
-            wikitext.match(/\{\{fr-IPA\|([^}|]*)/i);
-          if (ipaMatch) {
-            const raw = ipaMatch[1];
-            const cleaned =
-              raw.match(/\/[^/]+\//)?.[0] ||
-              raw
-                .replace(/\|.*$/, "")
-                .replace(/[{}[\]]/g, "")
-                .trim();
-            if (cleaned) {
-              ipaCache[word] = cleaned;
-              return cleaned;
-            }
-          }
-          const frSection =
-            wikitext.match(/==French==([\s\S]*?)(?:==\w|$)/i)?.[1] || "";
-          const anyIPA = frSection.match(
-            /\/[a-zàâçéèêëîïôùûüÿæœɑɔɛɥɲŋʁʃʒ̃ˈˌ.ː]+\//i,
-          )?.[0];
-          if (anyIPA) {
-            ipaCache[word] = anyIPA;
-            return anyIPA;
-          }
-        } catch (e) {
-          /* silent */
-        }
-        return null;
-      }
-
-      // IPA auto-lookup on type
+      // IPA logic removed (user requested no IPA). Text input no longer triggers lookup.
       textInput.addEventListener("input", () => {
         clearTimeout(ipaTimer);
-        const val = textInput.value.trim();
-        if (!val) {
-          ipaStrip.classList.add("hidden");
-          return;
-        }
-        ipaValue.innerHTML = '<span class="ipa-hint">looking up…</span>';
-        ipaStrip.classList.remove("hidden");
-        ipaTimer = setTimeout(async () => {
-          const ipa = await fetchIPA(val);
-          ipaValue.textContent = ipa || "";
-          if (!ipa) ipaStrip.classList.add("hidden");
-        }, 600);
       });
 
       // ── speech ──
@@ -702,15 +607,13 @@
           setStatus("Nothing to save.");
           return;
         }
-        const ipaText = ipaValue.textContent;
-        const ipa =
-          ipaText && !ipaText.includes("…") ? ipaText : await fetchIPA(trimmed);
         const item = {
           id: crypto.randomUUID(),
           text: trimmed,
-          ipa: ipa || "",
+          ipa: "",
           createdAt: Date.now(),
           favorite: false,
+          verb: false,
           notes: "",
         };
         history.unshift(item);
@@ -723,6 +626,14 @@
         const item = history.find((i) => i.id === id);
         if (!item) return;
         item.favorite = !item.favorite;
+        await persistEntry(item);
+        if (!currentUser) renderHistory();
+      }
+
+      async function toggleVerb(id) {
+        const item = history.find((i) => i.id === id);
+        if (!item) return;
+        item.verb = !item.verb;
         await persistEntry(item);
         if (!currentUser) renderHistory();
       }
@@ -771,7 +682,8 @@
         return history.filter((item) => {
           const matchSearch = item.text.toLowerCase().includes(q);
           const matchFav = favoritesOnly ? item.favorite : true;
-          return matchSearch && matchFav;
+          const matchVerb = verbsOnly ? item.verb : true;
+          return matchSearch && matchFav && matchVerb;
         });
       }
 
@@ -788,7 +700,7 @@
         <p class="history-text">${escapeHtml(item.text)}</p>
         ${item.ipa ? `<div class="history-ipa">${escapeHtml(item.ipa)}</div>` : ""}
         <div class="history-meta">
-          Saved: ${formatDate(item.createdAt)} ${item.favorite ? "★ Favorite" : ""}
+          Saved: ${formatDate(item.createdAt)} ${item.favorite ? "★ Favorite" : ""} ${item.verb ? "🔹 Verb" : ""}
         </div>
         <label class="notes-label" for="notes-${item.id}">Notes</label>
         <textarea
@@ -803,6 +715,7 @@
           <button data-action="play"     data-id="${item.id}">▶ Play</button>
           <button data-action="slow"     data-id="${item.id}" class="slow"><span class="turtle">🐢</span></button>
           <button data-action="favorite" data-id="${item.id}" class="secondary">${item.favorite ? "Unfavorite" : "Favorite"}</button>
+          <button data-action="verb"     data-id="${item.id}" class="secondary">${item.verb ? "Unmark Verb" : "Mark Verb"}</button>
           <button data-action="reuse"    data-id="${item.id}" class="secondary">Reuse</button>
           <button data-action="delete"   data-id="${item.id}" class="danger">Delete</button>
         </div>
@@ -823,7 +736,6 @@
 
       clearInputBtn.addEventListener("click", () => {
         textInput.value = "";
-        ipaStrip.classList.add("hidden");
         setStatus("Input cleared.");
       });
 
@@ -845,6 +757,12 @@
         renderHistory();
       });
 
+      showVerbsBtn.addEventListener("click", () => {
+        verbsOnly = !verbsOnly;
+        showVerbsBtn.textContent = verbsOnly ? "Show all" : "Show verbs only";
+        renderHistory();
+      });
+
       historyList.addEventListener("click", (e) => {
         const btn = e.target.closest("button");
         if (!btn) return;
@@ -854,6 +772,7 @@
         if (action === "play") speakText(item.text);
         if (action === "slow") speakText(item.text, 0.55);
         if (action === "favorite") toggleFavorite(id);
+        if (action === "verb") toggleVerb(id);
         if (action === "reuse") {
           textInput.value = item.text;
           textInput.dispatchEvent(new Event("input"));
