@@ -299,7 +299,7 @@ function updateNotes(id, notes) {
     await persistEntry(item);
     setStatus("Notes saved.");
     delete notesSaveTimers[id];
-  }, 1000);
+  }, 1500);
 }
 
 async function deleteHistoryItem(id) {
